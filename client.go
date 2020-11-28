@@ -2,14 +2,13 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"net"
 	"strings"
 )
 
 type client struct {
-	conn     net.Conn
-	nick     string
+	conn net.Conn
+	nick string
 	// room     *room
 	commands chan<- command
 }
@@ -21,8 +20,7 @@ func (c *client) readInput() {
 			return
 		}
 
-		msg = strings.Trim(msg, "\r\n")
-
+		//msg = strings.Trim(msg, "\r")
 		args := strings.Split(msg, " ")
 		cmd := strings.TrimSpace(args[0])
 
@@ -44,19 +42,30 @@ func (c *client) readInput() {
 				id:     CMD_ROOMS,
 				client: c,
 			}
-		case "/msg":
-			c.commands <- command{
-				id:     CMD_MSG,
-				client: c,
-				args:   args,
-			}
+			//		case "/msg":
+			//			c.commands <- command{
+			//				id:     CMD_MSG,
+			//				client: c,
+			//				args:   args,
+			//			}
+		case "":
+
 		case "/quit":
 			c.commands <- command{
 				id:     CMD_QUIT,
 				client: c,
 			}
 		default:
-			c.err(fmt.Errorf("unknown command: %s", cmd))
+			var s []string
+			s = append(s, cmd)
+			for i := 0; i < len(args); i++ {
+				s = append(s, args[i])
+			}
+			c.commands <- command{
+				id:     CMD_MSG,
+				client: c,
+				args:   s,
+			}
 		}
 	}
 }
