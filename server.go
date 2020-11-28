@@ -8,15 +8,22 @@ import (
 )
 
 type server struct {
-	commands chan 
 	members map[net.Addr]*client
-}
+	commands chan command
+}	
 
 func newServer() *server {
 	return &server{
 		// rooms:    make(map[string]*room),
-		commands: make(chan command),
 		members : make(map[net.Addr]*client),
+		commands: make(chan command),
+	}
+}
+func (s *server) broadcast(sender *client, msg string) {//Modificar essa funçao para que ela funcione sem o room
+	for addr, m := range s.members {
+		if sender.conn.RemoteAddr() != addr {
+			m.msg(msg)
+		}
 	}
 }
 
@@ -45,7 +52,10 @@ func (s *server) newClient(conn net.Conn) {
 		nick:     "anonymous",//variavel temporario
 		commands: s.commands,
 	}
-
+	s.members[c.conn.RemoteAddr()] = c
+	//VERIFICAR IMPLEMENTAÇÃO DA BIBLIOTECA DE IO
+	
+	c.msg(fmt.Sprintf("Commands\n /msg to send messages\n /nick to change your nick;\n"))
 	c.readInput()
 }
 //Essa funçao nick ja cria o nick
@@ -84,19 +94,19 @@ func (s *server) nick(c *client, nick string) {
 // }
 
 func (s *server) msg(c *client, args []string) {
-	msg := strings.Join(args[1:len(args)], " ")
-	c.room.broadcast(c, c.nick+": "+msg)
+	msg := strings.Join(args[1:len(args)], " ")//une a mesnagem
+	s.broadcast(c, c.nick+": "+msg)
 	//s.broadcast(c, c.nick+": "+msg)
 }
 
 func (s *server) quit(c *client) {
 	log.Printf("client has left the chat: %s", c.conn.RemoteAddr().String())
 	//Sair do servidor
-	s.quitCurrentRoom(c)
+	// s.quitCurrentRoom(c)
 
 	c.msg("sad to see you go =(")
 	// c.conn.Close()
-	conn.Close();
+	c.conn.Close();
 }
 
 // func (s *server) quitCurrentRoom(c *client) {
