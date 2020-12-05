@@ -45,7 +45,12 @@ func (s *server) run() {
 }
 
 func (s *server) newClient(conn net.Conn) {
-	log.Printf("new client has joined: %s", conn.RemoteAddr().String())
+	colorRed := "\033[31m"
+	colorGreen := "\033[32m"
+	//log.Printf("new client has joined: %s", conn.RemoteAddr().String())
+	//log.Printf("new client has joined: %s", conn.RemoteAddr().String())
+    log.Println(string(colorRed), "new client has joined: %s", conn.RemoteAddr().String())
+
 	//Criar funçao "qual o seu nick" e setar variavel temporario para input do usuario
 	c := &client{
 		conn:     conn,
@@ -56,6 +61,7 @@ func (s *server) newClient(conn net.Conn) {
 	//VERIFICAR IMPLEMENTAÇÃO DA BIBLIOTECA DE IO
 	
 	c.msg(fmt.Sprintf("Commands\n /msg to send messages\n /nick to change your nick;\n"))
+	c.msg(fmt.Sprintf((colorGreen),"Commands\n /msg to send messages\n /nick to change your nick;\n")) //arrumar simbolo
 	c.readInput()
 }
 //Essa funçao nick ja cria o nick
