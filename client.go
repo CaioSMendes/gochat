@@ -42,12 +42,6 @@ func (c *client) readInput() {
 				id:     CMD_ROOMS,
 				client: c,
 			}
-			//		case "/msg":
-			//			c.commands <- command{
-			//				id:     CMD_MSG,
-			//				client: c,
-			//				args:   args,
-			//			}
 		case "":
 
 		case "/quit":

@@ -32,10 +32,6 @@ func (s *server) run() {
 		switch cmd.id {
 		case CMD_NICK:
 			s.nick(cmd.client, cmd.args[1])
-		// case CMD_JOIN:
-		// 	s.join(cmd.client, cmd.args[1])
-		// case CMD_ROOMS:
-		// 	s.listRooms(cmd.client)
 		case CMD_MSG:
 			s.msg(cmd.client, cmd.args)
 		case CMD_QUIT: //Modificar
@@ -45,7 +41,10 @@ func (s *server) run() {
 }
 
 func (s *server) newClient(conn net.Conn) {
-	log.Printf("new client has joined: %s", conn.RemoteAddr().String())
+	colorRed := "\033[31m"
+	//colorGreen := "\033[32m"
+	//log.Printf("new client has joined: %s", conn.RemoteAddr().String())
+	log.Println(string(colorRed), "new client has joined: %s", conn.RemoteAddr().String())
 	//Criar funçao "qual o seu nick" e setar variavel temporario para input do usuario
 	c := &client{
 		conn:     conn,
@@ -55,6 +54,7 @@ func (s *server) newClient(conn net.Conn) {
 	s.members[c.conn.RemoteAddr()] = c
 	//VERIFICAR IMPLEMENTAÇÃO DA BIBLIOTECA DE IO
 	c.msg("Commands: \n /msg Escreve Mensagem \n /nick Muda o nick \n /quit sai do servidor \n")
+	//c.msg(fmt.Sprintf((colorGreen),"Commands\n /msg to send messages\n /nick to change your nick;\n")) //arrumar simbolo
 	c.readInput()
 }
 
@@ -64,34 +64,6 @@ func (s *server) nick(c *client, nick string) {
 	c.nick = nick
 	c.msg(fmt.Sprintf("all right, I will call you %s", nick))
 }
-
-// func (s *server) join(c *client, roomName string) {
-// 	r, ok := s.rooms[roomName]
-// 	if !ok {
-// 		r = &room{
-// 			name:    roomName,
-// 			members: make(map[net.Addr]*client),
-// 		}
-// 		s.rooms[roomName] = r
-// 	}
-// 	r.members[c.conn.RemoteAddr()] = c
-
-// 	s.quitCurrentRoom(c)
-// 	c.room = r
-
-// 	r.broadcast(c, fmt.Sprintf("%s joined the room", c.nick))
-
-// 	c.msg(fmt.Sprintf("welcome to %s", roomName))
-// }
-
-// func (s *server) listRooms(c *client) {
-// 	var rooms []string
-// 	for name := range s.rooms {
-// 		rooms = append(rooms, name)
-// 	}
-
-// 	c.msg(fmt.Sprintf("available rooms: %s", strings.Join(rooms, ", ")))
-// }
 
 func (s *server) msg(c *client, args []string) {
 	msg := strings.Join(args[1:len(args)], " ") //une a mesnagem
