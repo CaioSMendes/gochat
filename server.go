@@ -18,7 +18,7 @@ func newServer() *server {
 		commands: make(chan command),
 	}
 }
-func (s *server) broadcast(sender *client, msg string) { 
+func (s *server) broadcast(sender *client, msg string) { // importante, envia pp todos ao msm tempo
 	for addr, m := range s.members {
 		if sender.conn.RemoteAddr() != addr {
 			m.msg(msg)
@@ -26,7 +26,7 @@ func (s *server) broadcast(sender *client, msg string) {
 	}
 }
 
-func (s *server) run() {
+func (s *server) run() { 
 	for cmd := range s.commands {
 		switch cmd.id {
 		case CMD_NICK:
@@ -53,7 +53,6 @@ func (s *server) newClient(conn net.Conn) {
 	s.members[c.conn.RemoteAddr()] = c
 	//VERIFICAR IMPLEMENTAÇÃO DA BIBLIOTECA DE IO
 	c.msg("Commands: \n /nick Muda o nick \n /quit sai do servidor \n")
-	//c.msg(fmt.Sprintf((colorGreen),"Commands\n /msg to send messages\n /nick to change your nick;\n")) //arrumar simbolo
 	c.readInput()
 }
 
@@ -64,7 +63,7 @@ func (s *server) nick(c *client, nick string) {
 	c.msg(fmt.Sprintf("partiu, teu nome é: %s", nick))
 }
 
-func (s *server) msg(c *client, args []string) {
+func (s *server) msg(c *client, args []string) { //ENVIA MSG
 	msg := strings.Join(args[1:len(args)], " ") //une a mesnagem
 	s.broadcast(c, c.nick+": "+msg)
 }
